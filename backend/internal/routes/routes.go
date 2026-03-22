@@ -19,8 +19,9 @@ func Setup(router *gin.Engine, db *mongo.Database, cfg *config.Config) {
 		AllowCredentials: true,
 	}))
 
-	authService := services.NewAuthService(db, cfg.JWTSecret)
-	employeeService := services.NewEmployeeService(db)
+	mailerService := services.NewMailerService(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.SMTPFrom)
+	authService := services.NewAuthService(db, cfg.JWTSecret, mailerService)
+	employeeService := services.NewEmployeeService(db, cfg.FrontendURL, mailerService)
 	profileService := services.NewProfileService(db)
 
 	authController := controllers.NewAuthController(authService)
@@ -31,8 +32,10 @@ func Setup(router *gin.Engine, db *mongo.Database, cfg *config.Config) {
 	{
 		auth := api.Group("/auth")
 		{
-			auth.POST("/admin-signup", authController.AdminSignup)
-			auth.POST("/login", authController.Login)
+			auth.POST("/admin-signup/send-otp", authController.SendAdminSignupOTP)
+			auth.POST("/admin-signup/verify-otp", authController.VerifyAdminSignupOTP)
+			auth.POST("/login/send-otp", authController.SendLoginOTP)
+			auth.POST("/login/verify-otp", authController.VerifyLoginOTP)
 		}
 
 		protected := api.Group("")

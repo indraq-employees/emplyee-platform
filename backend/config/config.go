@@ -13,6 +13,11 @@ type Config struct {
 	MongoDB     string
 	JWTSecret   string
 	FrontendURL string
+	SMTPHost    string
+	SMTPPort    string
+	SMTPUser    string
+	SMTPPass    string
+	SMTPFrom    string
 }
 
 func Load() *Config {
@@ -24,6 +29,11 @@ func Load() *Config {
 		MongoDB:     getEnv("MONGO_DB", "employee_platform"),
 		JWTSecret:   getEnv("JWT_SECRET", "change_this_super_secret"),
 		FrontendURL: getEnv("FRONTEND_URL", "http://localhost:3000"),
+		SMTPHost:    getEnv("SMTP_HOST", ""),
+		SMTPPort:    getEnv("SMTP_PORT", "587"),
+		SMTPUser:    getEnv("SMTP_USER", ""),
+		SMTPPass:    getEnv("SMTP_PASS", ""),
+		SMTPFrom:    getEnv("SMTP_FROM", ""),
 	}
 
 	if cfg.JWTSecret == "" {

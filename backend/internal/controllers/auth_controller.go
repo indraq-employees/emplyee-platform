@@ -18,14 +18,29 @@ func NewAuthController(service *services.AuthService) *AuthController {
 	return &AuthController{service: service}
 }
 
-func (ctl *AuthController) AdminSignup(c *gin.Context) {
+func (ctl *AuthController) SendAdminSignupOTP(c *gin.Context) {
 	var req dto.AdminSignupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user, token, err := ctl.service.AdminSignup(c.Request.Context(), req)
+	if err := ctl.service.SendAdminSignupOTP(c.Request.Context(), req); err != nil {
+		utils.Error(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.Success(c, http.StatusOK, "otp sent successfully", nil)
+}
+
+func (ctl *AuthController) VerifyAdminSignupOTP(c *gin.Context) {
+	var req dto.VerifyAdminSignupOTPRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Error(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	user, token, err := ctl.service.VerifyAdminSignupOTP(c.Request.Context(), req)
 	if err != nil {
 		utils.Error(c, http.StatusBadRequest, err.Error())
 		return
@@ -37,14 +52,29 @@ func (ctl *AuthController) AdminSignup(c *gin.Context) {
 	})
 }
 
-func (ctl *AuthController) Login(c *gin.Context) {
+func (ctl *AuthController) SendLoginOTP(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.Error(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user, token, err := ctl.service.Login(c.Request.Context(), req)
+	if err := ctl.service.SendLoginOTP(c.Request.Context(), req); err != nil {
+		utils.Error(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	utils.Success(c, http.StatusOK, "otp sent successfully", nil)
+}
+
+func (ctl *AuthController) VerifyLoginOTP(c *gin.Context) {
+	var req dto.VerifyLoginOTPRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Error(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	user, token, err := ctl.service.VerifyLoginOTP(c.Request.Context(), req)
 	if err != nil {
 		utils.Error(c, http.StatusUnauthorized, err.Error())
 		return
